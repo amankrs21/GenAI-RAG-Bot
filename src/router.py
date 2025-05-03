@@ -1,52 +1,16 @@
-from fastapi import APIRouter, Depends
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter
 
-# Local imports
-from src.models.auth_models import RegisterModel, LoginModel
-from src.services.auth_user import register_user, login_user, get_current_user
+# local imports
+from src.api.auth import auth_router
+from src.api.chunk import chunk_router
 
 
+# router for the main API
 router = APIRouter()
 
 
-@router.post("/register")
-def register(user: RegisterModel):
-    return register_user(user.name, user.email, user.password)
+# Auth routes
+router.include_router(auth_router, prefix="/auth", tags=["auth"])
 
-
-@router.post("/login")
-def login(user: LoginModel):
-    response = login_user(user.email, user.password)
-    res = JSONResponse(content={"message": response["message"]})
-    res.set_cookie(
-        key="access_token",
-        value=response["access_token"],
-        httponly=True,
-        max_age=3600,
-        secure=True,
-        samesite="lax"
-    )
-    return res
-
-
-@router.get("/validate")
-def validate(user=Depends(get_current_user)):
-    return user
-
-
-@router.post("/logout")
-async def logout():
-    resp = JSONResponse(content={"message": "Logged out successfully"})
-    resp.delete_cookie(
-        key="access_token",
-        httponly=True,
-        secure=True,
-        samesite="lax"
-    )
-    return resp
-
-
-@router.get("/hello2")
-def hello():
-    print("Hello, World!")
-    return {"message": "Hello, World!"}
+# Chunk routes
+router.include_router(chunk_router, prefix="/chunks", tags=["chunks"])
