@@ -91,11 +91,10 @@ def login_user(email: str, password: str):
 
 # Get current user
 def get_current_user(request: Request):
-    auth_header = request.headers.get("Authorization")
-    if not auth_header or not auth_header.startswith("Bearer "):
+    token = request.cookies.get("access_token")
+    if not token:
         raise HTTPException(status_code=401, detail="Authorization token missing")
 
-    token = auth_header.split(" ")[1]
     payload = decode_access_token(token)
     if not payload:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
