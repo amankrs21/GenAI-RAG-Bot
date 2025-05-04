@@ -7,7 +7,7 @@ export default function AppHeader() {
 
     return (
         <div className='title' onClick={reloadPage}>
-            <img src="/bot.png" alt="DevBot" />
+            <img src="/bot.png" alt="GenAIBot" />
             <h2>GenAIBot</h2>
         </div>
     )
