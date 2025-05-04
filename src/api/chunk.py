@@ -61,9 +61,27 @@ async def get_chunks(file_id: str):
     ]
 
 
-@chunk_router.put("/chunk/{chunk_id}")
-async def update_chunk(chunk_id: str, new_text: str = Form(...)):
+@chunk_router.delete("/file/{file_id}")
+async def delete_file(file_id: str):
     try:
+        # Delete all chunks associated with the file_id
+        collection.delete(where={"file_id": file_id})
+        # Optionally, delete the file from the filesystem if needed
+        file_path = os.path.join(UPLOAD_DIR, file_id)
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        return {"message": "File and associated chunks deleted"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@chunk_router.put("/chunk/{chunk_id}")
+async def update_chunk(chunk_id: str, payload: dict):
+    try:
+        new_text = payload.get("new_text")
+        if not new_text:
+            raise HTTPException(status_code=400, detail="new_text is required in the request body")
+
         # ChromaDB doesn't support direct updates. We simulate it.
         old = collection.get(ids=[chunk_id])
         meta = old["metadatas"][0]
