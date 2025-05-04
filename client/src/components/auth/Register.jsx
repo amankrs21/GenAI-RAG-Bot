@@ -28,7 +28,7 @@ export default function Register({ open, setOpen, setOpenL }) {
         e.preventDefault();
         try {
             setLoading(true);
-            await http.post('/register', {
+            await http.post('/auth/register', {
                 name: e.target.name.value,
                 email: e.target.email.value,
                 password: e.target.password.value,
