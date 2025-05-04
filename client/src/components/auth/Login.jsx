@@ -26,7 +26,7 @@ export default function Login({ open, setOpen, setOpenR }) {
         e.preventDefault();
         try {
             setLoading(true);
-            await http.post('/login', {
+            await http.post('/auth/login', {
                 email: e?.target?.email?.value,
                 password: e?.target?.password?.value,
             });

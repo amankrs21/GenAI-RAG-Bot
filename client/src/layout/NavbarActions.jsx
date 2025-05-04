@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import { toast } from 'react-toastify';
+import { useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from 'react';
 import { Button, IconButton, Typography } from '@mui/material';
 import { ExpandMore, ExpandLess, AutoDelete, Delete } from '@mui/icons-material';
@@ -13,10 +14,11 @@ import LogoutPop from '../components/auth/LogoutPop';
 // Navbar actions component
 export default function NavbarActions({ chatId, history, setChatId, setHistory, setMessages, handleOpen }) {
 
-    const navbarAction = useRef(null);
-    const { setLoading } = useLoading();
+    const navigate = useNavigate();
     const { http, logout } = useAuth();
+    const { setLoading } = useLoading();
 
+    const navbarAction = useRef(null);
     const [open, setOpen] = useState(false);
     const [expanded, setExpanded] = useState(false);
     const [openLogout, setOpenLogout] = useState(false);
@@ -35,6 +37,8 @@ export default function NavbarActions({ chatId, history, setChatId, setHistory, 
         if (e) {
             setOpenLogout(false);
             await logout();
+            toast.success('Logged out successfully');
+            navigate('/');
         }
         setOpenLogout(false);
     };

@@ -24,8 +24,8 @@ export const AuthProvider = ({ children }) => {
     const [isAuthLoading, setIsAuthLoading] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-    const baseUrl = 'http://192.168.1.39:5000/api';
-    // const baseUrl = window.location.origin + '/api';
+    // const baseUrl = 'http://localhost:5000/api';
+    const baseUrl = 'https://botairag.azurewebsites.net/api';
 
     const http = useMemo(() => {
         const instance = axios.create({
@@ -51,7 +51,7 @@ export const AuthProvider = ({ children }) => {
 
     const refreshAuth = async () => {
         try {
-            const response = await http.get('/validate');
+            const response = await http.get('/auth/validate');
             setUserData(response.data);
             setIsAuthenticated(true);
         } catch (error) {
@@ -64,7 +64,7 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const validateSession = async () => {
             try {
-                const response = await http.get('/validate');
+                const response = await http.get('/auth/validate');
                 setUserData(response.data);
                 setIsAuthenticated(true);
             } catch (error) {
@@ -81,7 +81,7 @@ export const AuthProvider = ({ children }) => {
 
     const logout = async () => {
         try {
-            await http.post('/logout');
+            await http.post('/auth/logout');
             setUserData(null);
             setIsAuthenticated(false);
         } catch (error) {

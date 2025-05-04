@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import { useNavigate } from "react-router-dom";
 import { Grid, Typography, Button } from "@mui/material";
@@ -9,14 +9,23 @@ import './Welcome.css';
 import Login from "../../components/auth/Login";
 import Register from "../../components/auth/Register";
 import TypewriterEffect from "../../components/typing/TypewriterEffect";
+import { useAuth } from "../../hooks/useAuth";
 
 
 // Welcome component
 export default function Welcome() {
 
     const navigate = useNavigate();
+    const { isAuthenticated } = useAuth();
     const [openReg, setOpenReg] = useState(false);
     const [openLogin, setOpenLogin] = useState(false);
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate("/chat");
+        }
+    }, [isAuthenticated, navigate]);
+
 
     return (
         <Grid container component="main" sx={{ height: "100vh", overflow: "hidden" }}>
@@ -99,8 +108,7 @@ export default function Welcome() {
                             size="large"
                             variant="contained"
                             endIcon={<LoginIcon />}
-                            onClick={() => navigate("/chat")}
-                            // onClick={() => setOpenLogin(true)}
+                            onClick={() => setOpenLogin(true)}
                             sx={{
                                 background: "linear-gradient(to right, #4a90e2, #a163e6)",
                                 color: "#fff",

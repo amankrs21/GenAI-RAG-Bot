@@ -5,7 +5,7 @@ import './main.css';
 import Router from './Router';
 import Loading from './components/Loading';
 import ErrorPage from './pages/error/ErrorPage';
-import ErrorBoundary from './contexts/ErrorBoundary';
+import ErrorBoundary from './middleware/ErrorBoundary';
 import { AuthProvider } from './contexts/AuthContext';
 import { LoadingProvider } from './contexts/LoadingContext';
 

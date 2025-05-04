@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
+
+import { useAuth } from '../hooks/useAuth';
 import AppHeader from '../layout/AppHeader';
 import NavbarActions from '../layout/NavbarActions';
-
-// import { useAuth } from '../hooks/useAuth';
 
 
 // PrivateRoutes component to protect routes
 export default function PrivateRoutes() {
 
-    // const { isAuthLoading, isAuthenticated, http, logout } = useAuth();
+    const navigate = useNavigate();
+    const { isAuthLoading, isAuthenticated, http } = useAuth();
 
     const tempAuth = true;
 
@@ -21,25 +22,25 @@ export default function PrivateRoutes() {
         console.log("Opening chat history...");
     }
 
+    useEffect(() => {
+        if (!isAuthenticated) { navigate('/'); };
+        if (isAuthLoading || !http.defaults.headers.common.Authorization) return;
+
+
+        // const urlParams = new URLSearchParams(window.location.search);
+        // setChatId(urlParams.get('chatId') ?? null);
+
+    }, [isAuthLoading, isAuthenticated, http, navigate]);
+
+    if (!isAuthenticated) {
+        return null;
+    }
+
     // useEffect(() => {
-    //     if (!isAuthenticated) logout();
-    //     if (isAuthLoading || !http.defaults.headers.common.Authorization) return;
-
-
     //     const urlParams = new URLSearchParams(window.location.search);
     //     setChatId(urlParams.get('chatId') ?? null);
 
-    // }, [isAuthLoading, isAuthenticated, http, logout]);
-
-    // if (!isAuthenticated) {
-    //     return null;
-    // }
-
-    useEffect(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-        setChatId(urlParams.get('chatId') ?? null);
-
-    }, [chatId]);
+    // }, [chatId]);
 
 
     return (

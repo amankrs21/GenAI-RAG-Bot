@@ -211,7 +211,6 @@
     display: flex;
     overflow-y: auto;
     flex-direction: column;
-    scrollbar-color: #555 #1d1e20;
 }
 
 .chat__container {
@@ -272,7 +271,7 @@
     width: 100%;
     padding: 10px 3px;
     border-radius: 8px;
-    color: #D3D2D2;
+    color: #1D1D1D;
     align-self: flex-start;
     background: transparent;
 }
@@ -281,10 +280,11 @@
     max-width: 80%;
     padding: 6px 15px;
     border-radius: 10px 10px 0 10px;
-    color: #D3D2D2;
+    color: #2B2A29;
     align-self: flex-end;
-    background: #2a2c2e;
+    background: #FCFCFC;
     display: inline-block;
+    border: 1px solid #D1D4DA;
 }
 
 .chat-message-wrapper p {
@@ -293,7 +293,7 @@
 
 .markdown-heading {
     margin: 10px 0 5px;
-    color: #D3D2D2;
+    color: #1D1D1D;
 }
 
 .markdown-heading h1 {
@@ -315,7 +315,7 @@
 .markdown-list {
     margin: 10px 0;
     padding-left: 20px;
-    color: #D3D2D2;
+    color: #1D1D1D;
 }
 
 .markdown-list ul {
@@ -370,15 +370,15 @@
     overflow-x: auto;
     white-space: pre;
     word-wrap: normal;
-    background: #121314;
+    background: #FCFCFC;
 }
 
 .inline-code {
     font-size: 14px;
     padding: 2px 4px;
     border-radius: 3px;
-    color: #D3D2D2;
-    background: #2a2c2e;
+    color: #1D1D1D;
+    background: #FCFCFC;
     font-family: 'Fira Code', monospace;
 }
 

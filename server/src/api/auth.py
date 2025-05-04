@@ -3,18 +3,18 @@ from fastapi.responses import JSONResponse
 
 # Local imports
 from src.models.auth_models import RegisterModel, LoginModel
-from src.services.auth_user import register_user, login_user, get_current_user
+from src.services.auth_service import register_user, login_user, get_current_user
 
 
-router = APIRouter()
+auth_router = APIRouter()
 
 
-@router.post("/register")
+@auth_router.post("/register")
 def register(user: RegisterModel):
     return register_user(user.name, user.email, user.password)
 
 
-@router.post("/login")
+@auth_router.post("/login")
 def login(user: LoginModel):
     response = login_user(user.email, user.password)
     res = JSONResponse(content={"message": response["message"]})
@@ -29,12 +29,12 @@ def login(user: LoginModel):
     return res
 
 
-@router.get("/validate")
+@auth_router.get("/validate")
 def validate(user=Depends(get_current_user)):
     return user
 
 
-@router.post("/logout")
+@auth_router.post("/logout")
 async def logout():
     resp = JSONResponse(content={"message": "Logged out successfully"})
     resp.delete_cookie(
@@ -44,9 +44,3 @@ async def logout():
         samesite="lax"
     )
     return resp
-
-
-@router.get("/hello2")
-def hello():
-    print("Hello, World!")
-    return {"message": "Hello, World!"}

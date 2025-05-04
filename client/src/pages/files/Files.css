@@ -1,0 +1,24 @@
+.source__chunks {
+    gap: 10px;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    border-radius: 5px;
+    flex-direction: column;
+    background-color: #f9f9f9;
+    border-bottom: 1px solid #ccc;
+}
+
+.source__chunks__header {
+    gap: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.source__chunks__header__actions {
+    gap: 10px;
+    display: flex;
+    align-items: center;
+}
