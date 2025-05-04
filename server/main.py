@@ -33,6 +33,18 @@ app.add_middleware(
 app.include_router(router, prefix="/api", tags=["api"])
 
 
+# create a health check endpoint
+@app.get("/health")
+async def health_check():
+    return {"status": "ok"}
+
+
+# Error handler: 404
+@app.exception_handler(404)
+async def not_found_handler(request: Request, exc: Exception):
+    return JSONResponse({"error": "Not found"}, status_code=404)
+
+
 # Error handler: 500
 @app.exception_handler(Exception)
 async def server_error_handler(request: Request, exc: Exception):
@@ -45,4 +57,4 @@ if __name__ == "__main__":
     import uvicorn
     host = os.getenv("HOST", "0.0.0.0")
     port = int(os.getenv("PORT", 5000))
-    uvicorn.run("main:app", host=host, port=port, reload=True)
+    uvicorn.run("main:app", host=host, port=port, reload=False)
