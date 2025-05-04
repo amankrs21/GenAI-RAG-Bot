@@ -7,6 +7,11 @@ from src.utils.agent_role import agent_role_message
 from src.services.chunk_service import collection
 
 
+# Constants
+TOP_K = 3
+THRESHOLD = 0.4
+
+
 # In-memory session tracking
 session_data = {}
 
@@ -27,10 +32,10 @@ def retrieve_context_from_chromadb(user_query: str) -> str:
     try:
         results = collection.query(
             query_texts=[user_query],
-            n_results=3
+            n_results=TOP_K,
         )
-        # print(f"[ChromaDB] Retrieved {len(results.get('documents', [[]])[0])} documents.")
-        # print(f"[ChromaDB] Results: {results}")
+        print(f"[ChromaDB] Retrieved {len(results.get('documents', [[]])[0])} documents.")
+        print(f"[ChromaDB] Results: {results}")
         docs = results.get("documents", [[]])[0]
         context = "\n\n".join([f"- {doc.strip()}" for doc in docs if doc.strip()])
         if context:
@@ -55,8 +60,8 @@ def genai_agent_chat(user_query: str, session_id: str):
             "start_time": time.time(),
         }
 
-    if session_data[session_id]["count"] >= 5:
-        return "You’ve reached the 5-message limit. Try again after 6 hours!"
+    # if session_data[session_id]["count"] >= 5:
+    #     return "You’ve reached the 5-message limit. Try again after 6 hours!"
 
     # Retrieve vector-based context
     retrieved_context = retrieve_context_from_chromadb(user_query)
@@ -79,7 +84,7 @@ def genai_agent_chat(user_query: str, session_id: str):
             for chunk in mistral.stream(messages):
                 content = chunk.content
                 full_response += content
-                # print(content, end="", flush=True)
+                print(content, end="", flush=True)
                 yield content
         except Exception as e:
             print(f"[Stream Error] {e}")
