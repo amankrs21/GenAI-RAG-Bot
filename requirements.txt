@@ -74,8 +74,6 @@ pdfplumber==0.11.6
 pillow==11.2.1
 posthog==4.0.1
 protobuf==5.29.4
-pyasn1==0.4.8
-pyasn1_modules==0.4.2
 pycparser==2.22
 pydantic==2.11.4
 pydantic_core==2.33.2
@@ -118,3 +116,5 @@ websockets==15.0.1
 wrapt==1.17.2
 zipp==3.21.0
 zstandard==0.23.0
+pyasn1
+pyasn1_modules

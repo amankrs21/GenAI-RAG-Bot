@@ -24,14 +24,16 @@ app.mount("/static", StaticFiles(directory=STATIC_FOLDER, html=True), name="stat
 
 
 # CORS Configuration
-cors_url = os.getenv("CORS_URL", "*")
+cors_urls = os.getenv("CORS_URL", "*")
+allowed_origins = cors_urls.split(",") if cors_urls != "*" else ["*"]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[cors_url],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 
 # Include API routes
