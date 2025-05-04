@@ -1,0 +1,20 @@
+GENAIBOT/
+├── client/         # Contains all the UI (React)
+├── src/
+│   |── router.py            # FastAPI  router registration
+│   ├── api/
+│   │   ├── chat.py          # Mistral chat, memory, storage (Not implemented yet)
+│   │   └── chunks.py        # Chunking, update/delete ops (Not implemented yet)
+│   ├── models/
+│   │   └── auth_models.py
+│   └── services/
+│       ├── auth_user.py  # Auth logic
+│       ├── jwt_handler.py  # JWT Logic
+│       ├── chat_service.py  # Chat + LLM  (Not implemented yet)
+│       └── chunk_service.py # Chunking logic (Not implemented yet)
+|
+|── main.py                  # FastAPI app
+└── requirements.txt
+
+
+TODO: Need to refreactor whole chroma DB Logic.
