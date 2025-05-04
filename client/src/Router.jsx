@@ -1,11 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
+import ChatHome from './pages/chat/ChatHome';
 import Welcome from './pages/welcome/Welcome';
+import FileMain from './pages/files/FilesMain';
 import ServerUnavl from './pages/error/ServerUnavl';
 import PageNotFound from './pages/error/PageNotFound';
-import ChatHome from './pages/chat/ChatHome';
 import PrivateRoutes from './middleware/PrivateRoutes';
-import Files from './pages/files/Files';
 
 
 export default function Router() {
@@ -18,8 +18,8 @@ export default function Router() {
                 <Route path='*' element={<Navigate to='/404' />} />
                 <Route path="/" element={<Navigate to="/welcome" />} />
                 <Route path="/" element={<PrivateRoutes />}>
-                    <Route path="/files" element={<Files />} />
                     <Route path="/chat" element={<ChatHome />} />
+                    <Route path="/source" element={<FileMain />} />
                 </Route>
             </Routes>
         </BrowserRouter>
