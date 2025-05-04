@@ -12,5 +12,5 @@ router = APIRouter()
 # Auth routes
 router.include_router(auth_router, prefix="/auth", tags=["auth"])
 
-# Chunk routes
-router.include_router(chunk_router, prefix="/chunks", tags=["chunks"])
+# Source routes
+router.include_router(chunk_router, prefix="/source", tags=["source"])
