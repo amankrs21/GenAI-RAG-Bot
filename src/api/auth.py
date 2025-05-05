@@ -24,7 +24,7 @@ def login(user: LoginModel):
         httponly=True,
         max_age=3600,
         secure=True,
-        samesite="lax"
+        samesite="None"
     )
     return res
 
