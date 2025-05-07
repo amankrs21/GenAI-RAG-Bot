@@ -74,6 +74,7 @@ def retrieve_context_from_chromadb(user_query: str) -> str:
                 f"- {doc.strip()} (source: {metadata['filename']}, updated: {metadata['last_updated']})"
                 for doc, metadata in filtered_docs
             ])
+            return context
 
     except Exception as e:
         print(f"[ChromaDB Error] {e}")
