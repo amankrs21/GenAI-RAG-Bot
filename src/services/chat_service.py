@@ -11,7 +11,7 @@ from src.services.chunk_service import setup_chromadb
 
 # Constants
 TOP_K = 5
-THRESHOLD = 1.0
+THRESHOLD = 1.2
 SESSION_DATA = {}
 
 
