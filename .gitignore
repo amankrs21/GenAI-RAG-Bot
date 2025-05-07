@@ -32,5 +32,5 @@ secrets.json
 *__pycache__/
 .backup/
 .env
-chroma_data/
+chroma_db/
 uploads/

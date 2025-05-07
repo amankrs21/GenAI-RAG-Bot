@@ -1,104 +1,140 @@
 import time
+from langchain.embeddings.base import Embeddings
+from sentence_transformers import SentenceTransformer
 from langchain_core.messages import HumanMessage, SystemMessage
 
 # local imports
 from src.utils.agent_setup import mistral
 from src.utils.agent_role import agent_role_message
-from src.services.chunk_service import collection
+from src.services.chunk_service import setup_chromadb
 
 
 # Constants
-TOP_K = 3
-THRESHOLD = 0.4
+TOP_K = 5
+THRESHOLD = 1.2
+SESSION_DATA = {}
 
 
-# In-memory session tracking
-session_data = {}
+# Embedding model wrapper
+class SentenceTransformerEmbeddings(Embeddings):
+    def __init__(self, model_name: str = 'sentence-transformers/all-MiniLM-L6-v2'):
+        self.model = SentenceTransformer(model_name)
+
+    def embed_documents(self, texts):
+        return self.model.encode(texts, convert_to_numpy=True).tolist()
+
+    def embed_query(self, text):
+        return self.model.encode(text, convert_to_numpy=True).tolist()
 
 
-# Clean old sessions
+# Initialize embedding model
+embedding_model = SentenceTransformerEmbeddings()
+
+
+# Initialize collection once
+collection = setup_chromadb()
+
+
+# Session data to track user interactions
 def clean_sessions():
     current_time = time.time()
     expired = [
-        session_id for session_id, data in session_data.items()
+        session_id for session_id, data in SESSION_DATA.items()
         if current_time - data["start_time"] > 6 * 60 * 60
     ]
     for sid in expired:
-        del session_data[sid]
-        print(f"[Session Cleanup] Removed expired session: {sid}")
+        del SESSION_DATA[sid]
 
 
+# Function to retrieve context from ChromaDB
 def retrieve_context_from_chromadb(user_query: str) -> str:
     try:
+        query_embedding = embedding_model.embed_query(user_query)
         results = collection.query(
-            query_texts=[user_query],
+            query_embeddings=query_embedding,
             n_results=TOP_K,
+            include=["documents", "metadatas", "distances"]
         )
-        print(f"[ChromaDB] Retrieved {len(results.get('documents', [[]])[0])} documents.")
-        print(f"[ChromaDB] Results: {results}")
-        docs = results.get("documents", [[]])[0]
-        context = "\n\n".join([f"- {doc.strip()}" for doc in docs if doc.strip()])
-        if context:
-            return f"Relevant info retrieved from your documents:\n\n{context}"
+
+        documents = results.get("documents", [[]])[0]
+        distances = results.get("distances", [[]])[0]
+        metadatas = results.get("metadatas", [[]])[0]
+
+        # Filter docs by distance threshold and ensure content is not empty
+        filtered_docs = [
+            (doc, metadata) for doc, score, metadata in zip(documents, distances, metadatas)
+            if score < THRESHOLD and doc.strip()
+        ]
+        
+        # print(f"[ChromaDB] Retrieved {len(filtered_docs)} documents under threshold.")
+        print(f"[ChromaDB] Distances: {distances}")
+
+        if filtered_docs:
+            context = "\n\n".join([
+                f"- {doc.strip()} (source: {metadata['filename']}, updated: {metadata['last_updated']})"
+                for doc, metadata in filtered_docs
+            ])
+            return context
+
     except Exception as e:
         print(f"[ChromaDB Error] {e}")
+        
     return ""
 
 
+
+# Function to handle chat interactions
 def genai_agent_chat(user_query: str, session_id: str):
     if not user_query.strip():
         return "Hmm... You didn’t type anything! Try again with a query."
 
-    # Clean sessions
     clean_sessions()
 
-    # Init session if new
-    if session_id not in session_data:
-        session_data[session_id] = {
+    if session_id not in SESSION_DATA:
+        SESSION_DATA[session_id] = {
             "messages": [],
             "count": 0,
             "start_time": time.time(),
         }
 
-    # if session_data[session_id]["count"] >= 5:
-    #     return "You’ve reached the 5-message limit. Try again after 6 hours!"
-
-    # Retrieve vector-based context
     retrieved_context = retrieve_context_from_chromadb(user_query)
-    context_prefix = (
-        f"{retrieved_context}\n\nUser Query: {user_query}" if retrieved_context
-        else user_query
-    )
+    
+    # If no context is retrieved, return the message immediately
+    if not retrieved_context.strip():
+        return "🤖 Sorry, I couldn’t find any relevant information in my Data Source. Please connect with the Admin Department"
 
-    # Combine system, past memory, and current query
+    # If context is found, include it in the prompt
+    context_prefix = f"{retrieved_context}\n\nUser Query: {user_query}"
+    
+    print(f"===> Retrieved Context: \n\n{retrieved_context}")
+
     messages = [
-        SystemMessage(content=agent_role_message)
-    ] + session_data[session_id]["messages"] + [
+        SystemMessage(content=agent_role_message),
+        *SESSION_DATA[session_id]["messages"],
         HumanMessage(content=context_prefix)
     ]
 
     def generate_stream():
         full_response = ""
-
         try:
             for chunk in mistral.stream(messages):
                 content = chunk.content
                 full_response += content
-                print(content, end="", flush=True)
                 yield content
+                
         except Exception as e:
             print(f"[Stream Error] {e}")
-            yield "⚠️ Something went wrong while processing your request."
+            yield "Something went wrong while processing your request."
 
-        # Save memory
-        session_data[session_id]["messages"].extend([
+        # Update session with new messages
+        SESSION_DATA[session_id]["messages"].extend([
             HumanMessage(content=user_query),
             HumanMessage(content=full_response)
         ])
-        session_data[session_id]["messages"] = session_data[session_id]["messages"][-5:]
-        session_data[session_id]["count"] += 1
+        SESSION_DATA[session_id]["messages"] = SESSION_DATA[session_id]["messages"][-5:]
+        SESSION_DATA[session_id]["count"] += 1
 
-        if session_data[session_id]["count"] >= 5:
-            session_data[session_id]["start_time"] = time.time()
+        if SESSION_DATA[session_id]["count"] >= 5:
+            SESSION_DATA[session_id]["start_time"] = time.time()
 
     return generate_stream()
