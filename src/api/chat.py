@@ -1,7 +1,8 @@
 from fastapi.responses import StreamingResponse
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, Request, HTTPException, Depends
 
 # local imports
+from src.services.auth_service import get_current_user
 from src.services.chat_service import genai_agent_chat
 
 
@@ -9,7 +10,7 @@ chat_router = APIRouter()
 
 
 @chat_router.post("/mistral")
-async def chat(request: Request, payload: dict):
+async def chat(request: Request, payload: dict, user=Depends(get_current_user)):
     query = payload.get("query")
     if not query:
         raise HTTPException(status_code=400, detail="query is required in the request body")
