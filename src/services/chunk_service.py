@@ -1,14 +1,14 @@
 import os
 import uuid
+import cohere
 import logging
 import chromadb
 import pdfplumber
 from chromadb.config import Settings
 from datetime import datetime, timezone
 from langchain.embeddings.base import Embeddings
-from sentence_transformers import SentenceTransformer
-from langchain_experimental.text_splitter import SemanticChunker
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+# from langchain_experimental.text_splitter import SemanticChunker
 
 
 # Suppress warnings from pdfminer
@@ -22,19 +22,34 @@ CHROMA_COLLECTION_NAME = "file_chunks"
 
 
 # Embedding model wrapper
-class SentenceTransformerEmbeddings(Embeddings):
-    def __init__(self, model_name: str = 'sentence-transformers/all-MiniLM-L6-v2'):
-        self.model = SentenceTransformer(model_name)
+class CohereEmbeddings(Embeddings):
+    def __init__(self, api_key: str, model_name: str = "embed-english-v3.0"):
+        self.client = cohere.Client(api_key)
+        self.model_name = model_name
 
     def embed_documents(self, texts):
-        return self.model.encode(texts, convert_to_numpy=True).tolist()
+        response = self.client.embed(
+            texts=texts,
+            model=self.model_name,
+            input_type="search_document"
+        )
+        return response.embeddings
 
     def embed_query(self, text):
-        return self.model.encode(text, convert_to_numpy=True).tolist()
+        response = self.client.embed(
+            texts=[text],
+            model=self.model_name,
+            input_type="search_query"
+        )
+        return response.embeddings[0]
 
 
-# Initialize embedding model and text splitter
-embedding_model = SentenceTransformerEmbeddings()
+
+# Initialize embedding model
+COHERE_API_KEY = os.environ.get("COHERE_API_KEY")
+embedding_model = CohereEmbeddings(api_key=COHERE_API_KEY)
+
+# Text splitter config
 # text_splitter = SemanticChunker(
 #     embeddings=embedding_model,
 #     breakpoint_threshold_type="standard_deviation",     # or "percentile"
@@ -103,7 +118,7 @@ def process_and_store_file(file_path: str, filename: str, description: str):
         "last_updated": datetime.now(timezone.utc).isoformat()
     }
     
-    # Batch embed all chunks at once
+    # Batch embed all chunks
     vectors = embedding_model.embed_documents(chunks)
 
     for i, (chunk, vector) in enumerate(zip(chunks, vectors)):
@@ -115,5 +130,5 @@ def process_and_store_file(file_path: str, filename: str, description: str):
             embeddings=[vector],
         )
 
-    print(f"[EmbeddingService] Stored {len(chunks)} semantic chunks for '{filename}'.")
+    print(f"[EmbeddingService] Stored {len(chunks)} chunks for '{filename}'.")
     return metadata
