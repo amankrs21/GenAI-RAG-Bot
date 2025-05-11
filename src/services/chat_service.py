@@ -82,7 +82,7 @@ def genai_agent_chat(user_query: str, session_id: str):
     
     # If no context is retrieved, return the message immediately
     if not retrieved_context.strip():
-        return "🤖 Sorry, I couldn’t find any relevant information in my Data Source. Please connect with the Admin Department"
+        return "🤖 Sorry, I couldn’t find any relevant information in my Data Source."
 
     # If context is found, include it in the prompt
     context_prefix = f"{retrieved_context}\n\nUser Query: {user_query}"

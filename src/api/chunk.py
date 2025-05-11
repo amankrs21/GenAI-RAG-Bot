@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Depends
 
 # local imports
+from src.services.chunk_service import embedding_model
 from src.services.auth_service import get_current_user
 from src.services.chunk_service import process_and_store_file, collection
 
@@ -87,7 +88,13 @@ async def update_chunk(chunk_id: str, payload: dict, user=Depends(get_current_us
         old = collection.get(ids=[chunk_id])
         meta = old["metadatas"][0]
         collection.delete(ids=[chunk_id])
-        collection.add(documents=[new_text], ids=[chunk_id], metadatas=[meta])
+        vector = embedding_model.embed_query(new_text)
+        collection.add(
+            documents=[new_text],
+            ids=[chunk_id],
+            metadatas=[meta],
+            embeddings=[vector],
+        )
         return {"message": "Chunk updated"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
