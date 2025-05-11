@@ -9,9 +9,9 @@ load_dotenv()
 
 # Constants
 TOP_P = 0.95
-TEMPERATURE = 0.1
-MODEL_NAME = "mistral-large-latest"
+TEMPERATURE = 0.07
 API_KEY = os.getenv("MISTRAL_API_KEY")
+MODEL_NAME = os.getenv("MISTRAL_MODEL_NAME")
 
 if not API_KEY:
     raise ValueError("Mistral API key not found.")
