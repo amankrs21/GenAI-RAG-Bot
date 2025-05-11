@@ -94,13 +94,13 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_7A5985D86EEE476291DFC6D8C5865454 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_F0598E5D29A342EDA95AA57647DE0B56 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_C36BFD9C36B94694BC5DEC6EE7742A4E }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_5C748C29FD8B4EF1B5D714E7EC34415B }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_DCD4DF82B83A424CA6AC1C84BBDD22B0 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_5617123875BF431AB0EBAD4EA71519D1 }}
 
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
-          app-name: 'botairag'
+          app-name: 'ragai'
           slot-name: 'Production'
