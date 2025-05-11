@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     // const baseUrl = 'http://localhost:5000/api';
-    const baseUrl = 'https://botairag.azurewebsites.net/api';
+    const baseUrl = 'https://ragai.azurewebsites.net/api';
 
     const http = useMemo(() => {
         const instance = axios.create({
