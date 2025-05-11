@@ -1,9 +1,11 @@
 import os
 import shutil
 from fastapi.responses import JSONResponse
-from fastapi import APIRouter, File, UploadFile, Form, HTTPException
+from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Depends
 
 # local imports
+from src.services.chunk_service import embedding_model
+from src.services.auth_service import get_current_user
 from src.services.chunk_service import process_and_store_file, collection
 
 
@@ -15,7 +17,7 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 
 @chunk_router.post("/upload")
-async def upload_file(file: UploadFile = File(...), description: str = Form(...)):
+async def upload_file(user=Depends(get_current_user), file: UploadFile = File(...), description: str = Form(...)):
     filename = file.filename
     ext = os.path.splitext(filename)[1].lower()
     if ext not in [".pdf", ".txt"]:
@@ -30,7 +32,7 @@ async def upload_file(file: UploadFile = File(...), description: str = Form(...)
 
 
 @chunk_router.get("/files")
-async def get_files():
+async def get_files(user=Depends(get_current_user)):
     all_meta = collection.get(include=["metadatas"])["metadatas"]
     file_map = {}
     for meta in all_meta:
@@ -46,7 +48,7 @@ async def get_files():
 
 
 @chunk_router.get("/file/{file_id}")
-async def get_chunks(file_id: str):
+async def get_chunks(file_id: str, user=Depends(get_current_user)):
     results = collection.get(
         where={"file_id": file_id},
         include=["metadatas", "documents"]
@@ -62,7 +64,7 @@ async def get_chunks(file_id: str):
 
 
 @chunk_router.delete("/file/{file_id}")
-async def delete_file(file_id: str):
+async def delete_file(file_id: str, user=Depends(get_current_user)):
     try:
         # Delete all chunks associated with the file_id
         collection.delete(where={"file_id": file_id})
@@ -76,7 +78,7 @@ async def delete_file(file_id: str):
 
 
 @chunk_router.put("/chunk/{chunk_id}")
-async def update_chunk(chunk_id: str, payload: dict):
+async def update_chunk(chunk_id: str, payload: dict, user=Depends(get_current_user)):
     try:
         new_text = payload.get("new_text")
         if not new_text:
@@ -86,14 +88,20 @@ async def update_chunk(chunk_id: str, payload: dict):
         old = collection.get(ids=[chunk_id])
         meta = old["metadatas"][0]
         collection.delete(ids=[chunk_id])
-        collection.add(documents=[new_text], ids=[chunk_id], metadatas=[meta])
+        vector = embedding_model.embed_query(new_text)
+        collection.add(
+            documents=[new_text],
+            ids=[chunk_id],
+            metadatas=[meta],
+            embeddings=[vector],
+        )
         return {"message": "Chunk updated"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @chunk_router.delete("/chunk/{chunk_id}")
-async def delete_chunk(chunk_id: str):
+async def delete_chunk(chunk_id: str, user=Depends(get_current_user)):
     try:
         collection.delete(ids=[chunk_id])
         return {"message": "Chunk deleted"}

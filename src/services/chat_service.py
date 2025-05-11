@@ -1,34 +1,16 @@
 import time
-from langchain.embeddings.base import Embeddings
-from sentence_transformers import SentenceTransformer
 from langchain_core.messages import HumanMessage, SystemMessage
 
 # local imports
 from src.utils.agent_setup import mistral
 from src.utils.agent_role import agent_role_message
-from src.services.chunk_service import setup_chromadb
+from src.services.chunk_service import setup_chromadb, embedding_model
 
 
 # Constants
 TOP_K = 5
 THRESHOLD = 1.2
 SESSION_DATA = {}
-
-
-# Embedding model wrapper
-class SentenceTransformerEmbeddings(Embeddings):
-    def __init__(self, model_name: str = 'sentence-transformers/all-MiniLM-L6-v2'):
-        self.model = SentenceTransformer(model_name)
-
-    def embed_documents(self, texts):
-        return self.model.encode(texts, convert_to_numpy=True).tolist()
-
-    def embed_query(self, text):
-        return self.model.encode(text, convert_to_numpy=True).tolist()
-
-
-# Initialize embedding model
-embedding_model = SentenceTransformerEmbeddings()
 
 
 # Initialize collection once
@@ -66,7 +48,6 @@ def retrieve_context_from_chromadb(user_query: str) -> str:
             if score < THRESHOLD and doc.strip()
         ]
         
-        # print(f"[ChromaDB] Retrieved {len(filtered_docs)} documents under threshold.")
         print(f"[ChromaDB] Distances: {distances}")
 
         if filtered_docs:
@@ -101,12 +82,12 @@ def genai_agent_chat(user_query: str, session_id: str):
     
     # If no context is retrieved, return the message immediately
     if not retrieved_context.strip():
-        return "🤖 Sorry, I couldn’t find any relevant information in my Data Source. Please connect with the Admin Department"
+        return "🤖 Sorry, I couldn’t find any relevant information in my Data Source."
 
     # If context is found, include it in the prompt
     context_prefix = f"{retrieved_context}\n\nUser Query: {user_query}"
     
-    print(f"===> Retrieved Context: \n\n{retrieved_context}")
+    # print(f"===> Retrieved Context: \n\n{retrieved_context}")
 
     messages = [
         SystemMessage(content=agent_role_message),
