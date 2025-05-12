@@ -4,6 +4,7 @@ from fastapi import APIRouter
 from src.api.auth import auth_router
 from src.api.chat import chat_router
 from src.api.chunk import chunk_router
+from src.api.feedback import feedback_router
 
 
 # router for the main API
@@ -18,3 +19,6 @@ router.include_router(chunk_router, prefix="/source", tags=["source"])
 
 # Chat routes
 router.include_router(chat_router, prefix="/chat", tags=["chat"])
+
+# Feedback routes
+router.include_router(feedback_router, prefix="/feedback", tags=["feedback"])
