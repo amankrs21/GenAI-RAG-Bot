@@ -35,7 +35,11 @@ export default function Login({ open, setOpen, setOpenR }) {
             setOpen(false);
         } catch (error) {
             console.error(error);
-            toast.error(error?.response?.data?.error ?? 'An error occurred');
+            if (error?.response?.status === 401) {
+                toast.error('Invalid email or password');
+            } else {
+                toast.error(error?.response?.data?.detail[0]?.msg ?? 'An error occurred');
+            }
         } finally {
             setLoading(false);
         }
