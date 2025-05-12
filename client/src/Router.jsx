@@ -6,6 +6,7 @@ import FileMain from './pages/files/FilesMain';
 import ServerUnavl from './pages/error/ServerUnavl';
 import PageNotFound from './pages/error/PageNotFound';
 import PrivateRoutes from './middleware/PrivateRoutes';
+import Feedback from './pages/feedback/Feedback';
 
 
 export default function Router() {
@@ -20,6 +21,7 @@ export default function Router() {
                 <Route path="/" element={<PrivateRoutes />}>
                     <Route path="/chat" element={<ChatHome />} />
                     <Route path="/source" element={<FileMain />} />
+                    <Route path="/feedback" element={<Feedback />} />
                 </Route>
             </Routes>
         </BrowserRouter>
