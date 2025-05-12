@@ -1,14 +1,21 @@
 import rehypeRaw from "rehype-raw";
 import ReactMarkdown from "react-markdown";
-import { Highlight, themes } from "prism-react-renderer"; // change theme below
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { IconButton } from "@mui/material";
-import { ContentCopy } from "@mui/icons-material";
+import { Highlight, themes } from "prism-react-renderer";
+import { ContentCopy, ThumbUp, ThumbDown } from "@mui/icons-material";
+
+import ChatFeedback from "./ChatFeedback";
+
 
 // Chat message component
-const ChatMessage = ({ msg }) => {
+const ChatMessage = ({ msg, isLiked, isDisliked, onLike, onDislike }) => {
+
+    const [open, setOpen] = useState(false);
     const [copied, setCopied] = useState(false);
+    const messageText = msg.bot || msg.user || "No message content";
+    const sender = msg.bot ? "bot" : msg.user ? "user" : "unknown";
 
     const handleCopy = (code) => {
         navigator.clipboard.writeText(code).then(() => {
@@ -21,8 +28,10 @@ const ChatMessage = ({ msg }) => {
         });
     };
 
-    const messageText = msg.bot || msg.user || "No message content";
-    const sender = msg.bot ? "bot" : msg.user ? "user" : "unknown";
+    const handleDislikeFeedback = (comment) => {
+        onDislike(comment);
+        setOpen(false);
+    }
 
     return (
         <div className={`chat-message-wrapper ${sender}`}>
@@ -109,6 +118,19 @@ const ChatMessage = ({ msg }) => {
                     },
                 }}
             />
+            {sender === "bot" && (
+                <div className="feedback-buttons">
+                    <IconButton size="small" color={isLiked ? "primary" : "default"}
+                        disabled={isDisliked} onClick={onLike}>
+                        <ThumbUp fontSize="small" />
+                    </IconButton>
+                    <IconButton size="small" color={isDisliked ? "error" : "default"}
+                        disabled={isLiked} onClick={() => isDisliked ? onDislike() : setOpen(true)}>
+                        <ThumbDown fontSize="small" />
+                    </IconButton>
+                </div>
+            )}
+            {open && <ChatFeedback open={open} setOpen={setOpen} onsubmit={handleDislikeFeedback} />}
         </div>
     );
 };
