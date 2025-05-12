@@ -68,7 +68,7 @@ export default function Welcome() {
                     <DotLottieReact
                         loop
                         autoplay
-                        src="welcome.lottie"
+                        src="welcome.json"
                         style={{ width: '100%', height: '100%' }}
                     />
                 </div>
