@@ -104,3 +104,31 @@ jobs:
         with:
           app-name: 'ragai'
           slot-name: 'Production'
+
+
+  # 4. React App Hosting to Cloudflare (depends on Azure Web App deployment success)
+  ui-deployment:
+    name: UI Deployment
+    runs-on: ubuntu-latest
+    needs: fastapi-deployment
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install dependencies for React app
+        run: npm install
+        working-directory: ./client
+
+      - name: Build React app
+        run: npm run build
+        working-directory: ./client
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: 'ragbot'
+          directory: 'client/dist'
