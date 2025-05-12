@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import PropTypes from "prop-types";
+import { toast } from "react-toastify";
 import { useEffect, useRef, useState } from "react";
 import { ArrowDownward } from "@mui/icons-material";
 import { Container, IconButton } from "@mui/material";
@@ -14,7 +15,10 @@ export default function ChatLayout({ aiLoad, messages, onSend }) {
 
     const messagesEndRef = useRef(null);
     const chatContainerRef = useRef(null);
+
     const [autoScroll, setAutoScroll] = useState(true);
+    const [feedbackLike, setFeedbackLike] = useState([]);
+    const [feedbackDislike, setFeedbackDislike] = useState([]);
 
     useEffect(() => {
         if (autoScroll) {
@@ -36,6 +40,26 @@ export default function ChatLayout({ aiLoad, messages, onSend }) {
         }
     };
 
+    const handleLikeFeedback = (index, type) => {
+        console.log("Feedback submitted:", index, type);
+        if (!feedbackLike.includes(index)) {
+            setFeedbackLike((prev) => [...prev, index]);
+            toast.success("Feedback submitted successfully!");
+        } else {
+            setFeedbackLike((prev) => prev.filter((i) => i !== index));
+        }
+    }
+
+    const handleDislikeFeedback = (index, comment, bot, user) => {
+        console.log("Feedback submitted:", index, comment, bot, user);
+        if (!feedbackDislike.includes(index)) {
+            setFeedbackDislike((prev) => [...prev, index]);
+            toast.success("Feedback submitted successfully!");
+        } else {
+            setFeedbackDislike((prev) => prev.filter((i) => i !== index));
+        }
+    }
+
     return (
         <div className="chat">
             <div
@@ -49,8 +73,19 @@ export default function ChatLayout({ aiLoad, messages, onSend }) {
                     ) : (
                         messages.map((msg, index) => (
                             <div key={index} className="message-pair">
-                                {msg.user && <ChatMessage msg={{ user: msg.user }} />}
-                                {msg.bot && <ChatMessage msg={{ bot: msg.bot }} />}
+                                {msg.user &&
+                                    <ChatMessage msg={{ user: msg.user }} />
+                                }
+                                {msg.bot &&
+                                    <ChatMessage
+                                        msg={{ bot: msg.bot }}
+                                        isLiked={feedbackLike.includes(index)}
+                                        onLike={() => handleLikeFeedback(index)}
+                                        isDisliked={feedbackDislike.includes(index)}
+                                        onDislike={(comment) =>
+                                            handleDislikeFeedback(index, comment, msg.bot, messages[index - 1].user)}
+                                    />
+                                }
                             </div>
                         ))
                     )}

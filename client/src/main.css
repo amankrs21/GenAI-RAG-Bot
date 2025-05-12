@@ -274,6 +274,7 @@
     color: #1D1D1D;
     align-self: flex-start;
     background: transparent;
+    position: relative;
 }
 
 .chat-message-wrapper.user {
@@ -289,6 +290,15 @@
 
 .chat-message-wrapper p {
     margin: 5px 0;
+}
+
+.feedback-buttons {
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.chat-message-wrapper.bot:hover .feedback-buttons {
+    opacity: 1;
 }
 
 .markdown-heading {
