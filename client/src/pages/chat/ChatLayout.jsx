@@ -8,11 +8,13 @@ import { Container, IconButton } from "@mui/material";
 import ChatInput from "./ChatInput";
 import ChatMessage from "./ChatMessage";
 import TypingIndicator from "../../components/typing/TypingIndicator";
+import { useAuth } from "../../hooks/useAuth";
 
 
 // Chat layout component
 export default function ChatLayout({ aiLoad, messages, onSend }) {
 
+    const { http } = useAuth();
     const messagesEndRef = useRef(null);
     const chatContainerRef = useRef(null);
 
@@ -50,11 +52,21 @@ export default function ChatLayout({ aiLoad, messages, onSend }) {
         }
     }
 
-    const handleDislikeFeedback = (index, comment, bot, user) => {
+    const handleDislikeFeedback = async (index, comment, bot, user) => {
         console.log("Feedback submitted:", index, comment, bot, user);
         if (!feedbackDislike.includes(index)) {
-            setFeedbackDislike((prev) => [...prev, index]);
-            toast.success("Feedback submitted successfully!");
+            try {
+                await http.post("/feedback/dislike", {
+                    userMessage: user,
+                    botResponse: bot,
+                    comment: comment,
+                });
+                setFeedbackDislike((prev) => [...prev, index]);
+                toast.success("Feedback submitted successfully!");
+            } catch (error) {
+                console.error("Error submitting feedback:", error);
+                toast.error("Error submitting feedback. Please try again.");
+            }
         } else {
             setFeedbackDislike((prev) => prev.filter((i) => i !== index));
         }
