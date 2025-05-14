@@ -51,7 +51,7 @@ export default function Feedback() {
                     </Typography>
                 ) : (
                     <TableContainer component={Paper} elevation={10} variant="outlined">
-                        <Table>
+                        <Table size='small'>
                             <TableHead>
                                 <TableRow sx={{ backgroundColor: '#70b2ef', color: '#fff' }}>
                                     <TableCell sx={{ fontSize: '20px', fontWeight: '700' }}>#</TableCell>
