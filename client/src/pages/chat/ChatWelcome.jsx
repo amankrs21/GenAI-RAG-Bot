@@ -3,14 +3,12 @@ import { Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 
 import ChatInput from './ChatInput';
-import { useAuth } from '../../hooks/useAuth';
 import TypewriterEffect from '../../components/typing/TypewriterEffect';
 
 
 // ChatWelcome component
 export default function ChatWelcome({ onSend }) {
 
-    const { userData } = useAuth();
     const [greeting, setGreeting] = useState("Good Morning");
 
     useEffect(() => {
@@ -23,10 +21,11 @@ export default function ChatWelcome({ onSend }) {
     }, []);
 
     return (
-        <div className="welcome">
+        <div className="chat__welcome">
             <Typography variant="h5" fontWeight={700} color="primary">
-                {greeting}, {userData?.name.split(' ')[0]} 😊
+                Hello! {greeting} 😊
             </Typography>
+
             <Typography variant="h6" color="text.secondary" fontWeight={500}>
                 How can I assist you today?
             </Typography>
@@ -36,15 +35,20 @@ export default function ChatWelcome({ onSend }) {
             <Typography variant="h6" color="text.primary" fontWeight={500} height='30px' sx={{ mt: 4 }}>
                 <TypewriterEffect
                     strings={[
-                        "Analyze, debug, and optimize your code effortlessly.",
-                        "Get smart suggestions to level up your code.",
-                        "Complete and refactor code like a pro.",
-                        "Upload your files to get started.",
+                        "This is RAG (Retrieval Augmented Generation) chat.",
+                        "I'll help you with your queries.",
+                        "Sometimes I may provide Hallucinated answers.",
+                        "Please provide feedback to improve my responses.",
                     ]}
                     delay={50}
                     deleteSpeed={20}
                 />
             </Typography>
+
         </div>
     )
 }
+
+ChatWelcome.propTypes = {
+    onSend: PropTypes.func.isRequired,
+};

@@ -18,28 +18,7 @@ export default function ChatMainLayout() {
 
     const [open, setOpen] = useState(false);
     const [aiLoad, setAiLoad] = useState(false);
-    const [messages, setMessages] = useState([
-        {
-            bot: "Hello! I'm GenAIBot. How can I assist you today?",
-            user: "Hey there! Can you help me with some coding questions?",
-        },
-        {
-            bot: "Of course! What coding questions do you have?",
-            user: "I need help with a Python script.",
-        },
-        {
-            bot: "Sure! What do you need help with in your Python script?",
-            user: "Can you show me how to read a file in Python?",
-        },
-        {
-            bot: "Sure! What do you need help with in your Python script?",
-            user: "Can you show me how to read a file in Python?",
-        },
-        {
-            bot: "Sure! What do you need help with in your Python script?",
-            user: "Can you show me how to read a file in Python?",
-        },
-    ]);
+    const [messages, setMessages] = useState([]);
 
     const handleChat = async (text) => {
         try {
