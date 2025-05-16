@@ -1,13 +1,20 @@
 import PropTypes from 'prop-types';
-import { useState } from "react";
-import { Send } from '@mui/icons-material';
+import { useState, useEffect, useRef } from "react";
 import { TextField, InputAdornment, IconButton } from '@mui/material';
+import { ArrowUpward } from '@mui/icons-material';
 
 
 // Chat input component
-export default function ChatInput({ onSend }) {
+export default function ChatInput({ onSend, isLoading }) {
 
+    const inputRef = useRef();
     const [inputText, setInputText] = useState("");
+
+    useEffect(() => {
+        if (inputRef.current) {
+            inputRef.current.setAttribute('maxLength', '12000');
+        }
+    }, []);
 
     const handleSend = () => {
         if (inputText.trim()) {
@@ -28,29 +35,33 @@ export default function ChatInput({ onSend }) {
             autoFocus
             multiline
             minRows={3}
-            maxRows={8}
+            maxRows={6}
             value={inputText}
+            inputRef={inputRef}
             onChange={(e) => setInputText(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="What’s your code Q?"
-            className="welcome__textarea"
+            placeholder="Type your question here..."
+            className="chat__textarea"
+            error={inputText.length > 9999}
+            helperText={inputText.length > 9999 ? "Input too long, max 10000 length supported" : ""}
             slotProps={{
                 input: {
-                    'aria-label': 'Enter your coding question',
+                    'aria-label': 'chat input',
                     endAdornment: (
                         <InputAdornment position="end">
                             <IconButton
                                 sx={{
                                     color: '#fff',
-                                    padding: '10px',
-                                    background: inputText.trim() ? '#1976d2' : '#555',
-                                    '&:hover': { background: inputText.trim() ? '#1565c0' : '#666' },
+                                    padding: '6px',
+                                    background: '#1976d2',
+                                    '&:hover': { background: '#1565c0' },
+                                    display: inputText.trim() || isLoading ? 'flex' : 'none',
                                 }}
-                                disabled={!inputText.trim()}
+                                disabled={!inputText.trim() || isLoading}
                                 onClick={handleSend}
                                 size="small"
                             >
-                                <Send />
+                                <ArrowUpward size="small" />
                             </IconButton>
                         </InputAdornment>
                     ),
@@ -62,5 +73,6 @@ export default function ChatInput({ onSend }) {
 }
 
 ChatInput.propTypes = {
+    isLoading: PropTypes.bool,
     onSend: PropTypes.func.isRequired,
 };
