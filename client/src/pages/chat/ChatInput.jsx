@@ -12,7 +12,7 @@ export default function ChatInput({ onSend, isLoading }) {
 
     useEffect(() => {
         if (inputRef.current) {
-            inputRef.current.setAttribute('maxLength', '12000');
+            inputRef.current.setAttribute('maxLength', '10000');
         }
     }, []);
 
