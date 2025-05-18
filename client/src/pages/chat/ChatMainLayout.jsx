@@ -4,7 +4,6 @@ import { PsychologyAlt } from '@mui/icons-material';
 
 import "./Chat.css";
 import ChatHome from './ChatHome';
-import ChatLayout from './ChatLayout';
 import ChatWelcome from './ChatWelcome';
 import ChatInfoPop from './ChatInfoPop';
 import { handleChatLLM } from './handleChat';
