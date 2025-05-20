@@ -107,7 +107,7 @@ export const AuthProvider = ({ children }) => {
             {!isAuthLoading ? (
                 children
             ) : (
-                <div className='auth__loading'>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
                     <CircularProgress color="primary" size="3rem" />
                     <Typography variant="h6" color="primary" fontWeight={600} sx={{ mt: 2 }}>
                         Please wait, validating your session...

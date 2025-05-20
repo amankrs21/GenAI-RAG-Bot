@@ -71,6 +71,7 @@ export default function FileMain() {
 
     const handleOpenSource = async (source) => {
         try {
+            setLoading(true);
             const response = await http.get(`/source/file/${source?.file_id}`);
             setSourceData({
                 fileId: source?.file_id,
@@ -80,6 +81,8 @@ export default function FileMain() {
             setOpen(true);
         } catch (error) {
             console.error("Error fetching chunks:", error);
+        } finally {
+            setLoading(false);
         }
     }
 

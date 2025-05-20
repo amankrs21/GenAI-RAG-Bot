@@ -1,14 +1,22 @@
+import PropTypes from "prop-types";
 import rehypeRaw from "rehype-raw";
 import ReactMarkdown from "react-markdown";
-import { Highlight, themes } from "prism-react-renderer"; // change theme below
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { IconButton } from "@mui/material";
-import { ContentCopy } from "@mui/icons-material";
+import { Highlight, themes } from "prism-react-renderer";
+import { ContentCopy, ThumbUp, ThumbDown } from "@mui/icons-material";
 
-// Chat message component
-const ChatMessage = ({ msg }) => {
+import ChatFeedback from "./ChatFeedback";
+
+
+// ChatMessageBot component
+const ChatMessageBot = ({ msg, isLiked, isDisliked, onLike, onDislike }) => {
+
+    const [open, setOpen] = useState(false);
     const [copied, setCopied] = useState(false);
+    const messageText = msg.bot || msg.user || "No message content";
+    const sender = msg.bot ? "bot" : msg.user ? "user" : "unknown";
 
     const handleCopy = (code) => {
         navigator.clipboard.writeText(code).then(() => {
@@ -21,8 +29,10 @@ const ChatMessage = ({ msg }) => {
         });
     };
 
-    const messageText = msg.bot || msg.user || "No message content";
-    const sender = msg.bot ? "bot" : msg.user ? "user" : "unknown";
+    const handleDislikeFeedback = (comment) => {
+        onDislike(comment);
+        setOpen(false);
+    }
 
     return (
         <div className={`chat-message-wrapper ${sender}`}>
@@ -42,7 +52,7 @@ const ChatMessage = ({ msg }) => {
                         const match = /language-(\w+)/.exec(className || "");
                         if (!inline && match) {
                             return (
-                                <div className="code-block-wrapper" style={{ position: "relative" }}>
+                                <div className="code-block-wrapper">
                                     <Highlight
                                         theme={themes.github}
                                         code={codeContent}
@@ -57,12 +67,7 @@ const ChatMessage = ({ msg }) => {
                                                     padding: "12px",
                                                     fontSize: "13px",
                                                     borderRadius: "5px",
-                                                    background: "#FCFCFC",
-                                                    color: "#333",
-                                                    overflowX: "auto",
-                                                    whiteSpace: "pre-wrap",
-                                                    wordBreak: "break-word",
-                                                    border: "1px solid #D1D4DA",
+                                                    background: "#121314",
                                                 }}
                                             >
                                                 {tokens.map((line, i) => {
@@ -81,6 +86,7 @@ const ChatMessage = ({ msg }) => {
                                             </pre>
                                         )}
                                     </Highlight>
+
                                     <IconButton
                                         aria-label="copy code"
                                         onClick={() => handleCopy(codeContent)}
@@ -89,9 +95,9 @@ const ChatMessage = ({ msg }) => {
                                             position: "absolute",
                                             top: 8,
                                             right: 8,
-                                            color: "#333",
-                                            backgroundColor: "rgba(255, 255, 255, 0.6)",
-                                            "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.9)" },
+                                            color: "white",
+                                            backgroundColor: "rgba(0, 0, 0, 0.6)",
+                                            "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.8)" },
                                             opacity: copied ? 1 : 0.7,
                                             transition: "opacity 0.3s",
                                         }}
@@ -109,8 +115,36 @@ const ChatMessage = ({ msg }) => {
                     },
                 }}
             />
+            {sender === "bot" && (
+                <div className="feedback-buttons">
+                    <IconButton size="small" color={isLiked ? "primary" : "default"}
+                        disabled={isDisliked} onClick={onLike}>
+                        <ThumbUp fontSize="small" />
+                    </IconButton>
+                    <IconButton size="small" color={isDisliked ? "error" : "default"}
+                        disabled={isLiked} onClick={() => isDisliked ? onDislike() : setOpen(true)}>
+                        <ThumbDown fontSize="small" />
+                    </IconButton>
+                </div>
+            )}
+            {open && <ChatFeedback open={open} setOpen={setOpen} onsubmit={handleDislikeFeedback} />}
         </div>
     );
 };
 
-export default ChatMessage;
+ChatMessageBot.propTypes = {
+    msg: PropTypes.shape({
+        bot: PropTypes.string,
+        user: PropTypes.string,
+    }).isRequired,
+    isLiked: PropTypes.bool,
+    isDisliked: PropTypes.bool,
+    onLike: PropTypes.func.isRequired,
+    onDislike: PropTypes.func.isRequired,
+};
+ChatMessageBot.defaultProps = {
+    isLiked: false,
+    isDisliked: false,
+};
+
+export default ChatMessageBot;

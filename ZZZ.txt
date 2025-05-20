@@ -1,3 +1,11 @@
+--------------------------------------------------------------------
+WHILE DEPLOYEMENT ON AZURE WEB APP:
+** NAVIGATE TO > AZURE WEB APP > SETTINGS > CONFIGURATION **
+Then set the Startup command as-
+- gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app
+--------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------
 GENAIBOT/
 ├── client/         # Contains all the UI (React)
 ├── src/
@@ -15,6 +23,4 @@ GENAIBOT/
 |
 |── main.py                  # FastAPI app
 └── requirements.txt
-
-
-TODO: Need to refreactor whole chroma DB Logic.
+--------------------------------------------------------------------------------------

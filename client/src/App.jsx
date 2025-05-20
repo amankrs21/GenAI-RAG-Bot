@@ -1,7 +1,6 @@
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer, Slide } from 'react-toastify';
 
-import './main.css';
 import Router from './Router';
 import Loading from './components/Loading';
 import ErrorPage from './pages/error/ErrorPage';
