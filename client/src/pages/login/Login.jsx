@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import {
-    Typography, Button, TextField, IconButton, Grid, InputAdornment, Avatar, useTheme, useMediaQuery, Paper
+    Typography, Button, TextField, IconButton, Grid, InputAdornment, Avatar,
+    useTheme, useMediaQuery, Paper
 } from '@mui/material';
 import {
     Login as LoginIcon, LockOutlined, Visibility, VisibilityOff
