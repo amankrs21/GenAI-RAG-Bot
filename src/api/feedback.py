@@ -16,10 +16,9 @@ FEEDBACK_FILE = Path("chroma_db/feedback_data.jsonl")
 
 
 @feedback_router.post("/dislike")
-async def chat(request: Request, user=Depends(get_current_user)):
+async def chat(request: Request):
     try:
         body = await request.json()
-        email = user['email']
         comment = body.get('comment')
         user_message = body.get('userMessage')
         bot_response = body.get('botResponse')
@@ -29,7 +28,6 @@ async def chat(request: Request, user=Depends(get_current_user)):
         
         feedback = {
             "id": str(uuid.uuid4()),
-            "email": email,
             "comment": comment,
             "userMessage": user_message,
             "botResponse": bot_response,
