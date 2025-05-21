@@ -45,7 +45,7 @@ async def chat(request: Request):
 
 
 
-@feedback_router.get("/")
+@feedback_router.get("")
 async def get_feedback(user=Depends(get_current_user)):
     try:
         feedback_list = []
@@ -59,3 +59,31 @@ async def get_feedback(user=Depends(get_current_user)):
     except Exception as e:
         print(f"Error retrieving feedback: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@feedback_router.delete("/{feedback_id}")
+async def delete_feedback(feedback_id: str, user=Depends(get_current_user)):
+    try:
+        feedback_list = []
+        feedback_found = False
+        
+        with FEEDBACK_FILE.open("r", encoding="utf-8") as f:
+            for line in f:
+                feedback = json.loads(line)
+                if feedback["id"] == feedback_id:
+                    feedback_found = True
+                else:
+                    feedback_list.append(feedback)
+        
+        if not feedback_found:
+            raise HTTPException(status_code=404, detail="Feedback not found")
+        
+        with FEEDBACK_FILE.open("w", encoding="utf-8") as f:
+            for feedback in feedback_list:
+                f.write(json.dumps(feedback) + "\n")
+        
+    except Exception as e:
+        print(f"Error deleting feedback: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+    return {"message": "Feedback deleted successfully"}
