@@ -5,17 +5,21 @@ import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow
 } from '@mui/material';
 
+import './Feedback.css';
+import FeedbackDialog from './FeedbackDialog';
 import { useAuth } from '../../hooks/useAuth';
 import { useLoading } from '../../hooks/useLoading';
 
 
-
+// Feedback component
 export default function Feedback() {
 
     const { http } = useAuth();
     const { setLoading } = useLoading();
 
+    const [open, setOpen] = useState(false);
     const [feedback, setFeedback] = useState([]);
+    const [feedDialog, setFeedDialog] = useState([]);
 
     useEffect(() => {
         fetchData();
@@ -34,7 +38,29 @@ export default function Feedback() {
         }
     };
 
+    const openFeedback = (fed) => {
+        setOpen(true);
+        setFeedDialog(fed);
+    }
 
+    const handleClose = () => {
+        setOpen(false);
+        setFeedDialog([]);
+    }
+
+    const handleDelete = async () => {
+        try {
+            setLoading(true);
+            await http.delete(`/feedback/${feedDialog.id}`);
+            setOpen(false);
+            setFeedDialog([]);
+            fetchData();
+        } catch (error) {
+            console.error("Error deleting feedback:", error);
+        } finally {
+            setLoading(false);
+        }
+    }
 
     return (
         <Container style={{ marginTop: '80px' }}>
@@ -51,11 +77,10 @@ export default function Feedback() {
                     </Typography>
                 ) : (
                     <TableContainer component={Paper} elevation={10} variant="outlined">
-                        <Table size='small'>
+                        <Table size='medium'>
                             <TableHead>
                                 <TableRow sx={{ backgroundColor: '#70b2ef', color: '#fff' }}>
                                     <TableCell sx={{ fontSize: '20px', fontWeight: '700' }}>#</TableCell>
-                                    <TableCell sx={{ fontSize: '16px', fontWeight: '700' }}>Recieved From</TableCell>
                                     <TableCell sx={{ fontSize: '16px', fontWeight: '700' }}>User Message</TableCell>
                                     <TableCell sx={{ fontSize: '16px', fontWeight: '700' }}>Bot Response</TableCell>
                                     <TableCell sx={{ fontSize: '16px', fontWeight: '700' }}>User Comment</TableCell>
@@ -64,13 +89,21 @@ export default function Feedback() {
                             </TableHead>
                             <TableBody>
                                 {feedback?.map((fed, index) => (
-                                    <TableRow key={index} >
+                                    <TableRow key={index}
+                                        onClick={() => openFeedback(fed)}
+                                        sx={{ "&:hover": { backgroundColor: '#f5f5f5' }, cursor: 'pointer' }}
+                                    >
                                         <TableCell>{index + 1}</TableCell>
-                                        <TableCell>{fed?.email}</TableCell>
-                                        <TableCell>{fed?.userMessage}</TableCell>
-                                        <TableCell>{fed?.botResponse}</TableCell>
+                                        <TableCell>
+                                            {fed?.userMessage.length > 25 ? `${fed?.userMessage.slice(0, 25)}...` : fed?.userMessage}
+                                        </TableCell>
+                                        <TableCell>
+                                            {fed?.botResponse.length > 25 ? `${fed?.botResponse.slice(0, 25)}...` : fed?.botResponse}
+                                        </TableCell>
                                         <TableCell>{fed?.comment}</TableCell>
-                                        <TableCell>{new Date(fed?.createdAt).toLocaleString()}</TableCell>
+                                        <TableCell>
+                                            {new Date(fed?.createdAt).toLocaleString()}
+                                        </TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
@@ -78,6 +111,10 @@ export default function Feedback() {
                     </TableContainer>
                 )}
             </Card >
+            {open &&
+                <FeedbackDialog open={open} feedDialog={feedDialog}
+                    handleClose={handleClose} handleDelete={handleDelete} />
+            }
         </Container >
     )
 }
