@@ -5,7 +5,6 @@ import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow
 } from '@mui/material';
 
-import './Feedback.css';
 import FeedbackDialog from './FeedbackDialog';
 import { useAuth } from '../../hooks/useAuth';
 import { useLoading } from '../../hooks/useLoading';
