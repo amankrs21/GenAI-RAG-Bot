@@ -1,5 +1,5 @@
 import time
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 
 # local imports
 from src.utils.agent_setup import mistral
@@ -26,6 +26,33 @@ def clean_sessions():
     ]
     for sid in expired:
         del SESSION_DATA[sid]
+
+
+
+# Function to refine user's query
+def refine_query(user_query: str, session_id: str) -> str:
+    # Strict system prompt to enforce behavior
+    system_prompt = (
+        "You are a query refiner for an AI assistant. Your job is to clarify user queries based on the conversation history and the latest message."
+        "DO NOT add new topics or extra information unless directly relevant and DO NOT assume beyond the previous question."
+        "If the user's query is already clear, leave it unchanged. Keep the refined query minimal and focused."
+        "If the latest message is a follow-up like `what about services?`, combine it with the previous topic to form a complete question."
+    )
+    
+    messages = [
+        SystemMessage(content=system_prompt),
+        *SESSION_DATA[session_id]["messages"],
+        HumanMessage(content=user_query)
+    ]
+
+    try:
+        response = mistral.invoke(messages)
+        refined_query = response.content.strip()
+        print(f"[Refined Query]: {refined_query}")
+        return refined_query
+    except Exception as e:
+        print(f"[Refine Query Error]: {e}")
+        return user_query 
 
 
 # Function to retrieve context from ChromaDB
@@ -78,14 +105,19 @@ def genai_agent_chat(user_query: str, session_id: str):
             "start_time": time.time(),
         }
 
-    retrieved_context = retrieve_context_from_chromadb(user_query)
+    # Step 1: Refine the user query
+    refined_query = refine_query(user_query, session_id)
+
+    # Step 2: Retrieve context using the refined query
+    retrieved_context = retrieve_context_from_chromadb(refined_query)
+    # retrieved_context = retrieve_context_from_chromadb(user_query)
     
     # If no context is retrieved, return the message immediately
     if not retrieved_context.strip():
         return "🤖 Sorry, I couldn’t find any relevant information in my Data Source."
 
     # If context is found, include it in the prompt
-    context_prefix = f"{retrieved_context}\n\nUser Query: {user_query}"
+    context_prefix = f"{retrieved_context}\n\nUser Query: {refined_query}"
     
     # print(f"===> Retrieved Context: \n\n{retrieved_context}")
 
@@ -107,10 +139,10 @@ def genai_agent_chat(user_query: str, session_id: str):
             print(f"[Stream Error] {e}")
             yield "Something went wrong while processing your request."
 
-        # Update session with new messages
+        # Update session with new messages (track user query, not refined query)
         SESSION_DATA[session_id]["messages"].extend([
             HumanMessage(content=user_query),
-            HumanMessage(content=full_response)
+            AIMessage(content=full_response)
         ])
         SESSION_DATA[session_id]["messages"] = SESSION_DATA[session_id]["messages"][-5:]
         SESSION_DATA[session_id]["count"] += 1
