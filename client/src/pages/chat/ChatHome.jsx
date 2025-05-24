@@ -38,7 +38,7 @@ export default function ChatHome({ aiLoad, messages, onSend }) {
         if (chatContainer) {
             const isUserNearBottom =
                 chatContainer.scrollHeight - chatContainer.scrollTop <=
-                chatContainer.clientHeight + 60;
+                chatContainer.clientHeight + 100;
             setAutoScroll(isUserNearBottom);
         }
     };
